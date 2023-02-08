@@ -1,5 +1,6 @@
 package com.ksuniv.diary
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -21,32 +22,60 @@ import java.io.IOException
 import java.nio.file.Paths
 import java.text.DateFormat
 import java.text.SimpleDateFormat
+import java.time.DayOfWeek
+import java.time.Year
 import java.util.Date
 
 
 class MainActivity : AppCompatActivity() {
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val dayText : TextView = findViewById(R.id.day_text)
+        val diaryContent : TextView = findViewById(R.id.diaryContent)
         val calendarView : CalendarView = findViewById(R.id.calenderView)
 
         val dateFormat : DateFormat = SimpleDateFormat("yyyy년 MM월 dd일")
 
         val date = Date(calendarView.date)
         dayText.text = dateFormat.format(date)
-
-
+        var name : String
+        name = "${date.year + 1900}${if(date.month < 9) "0" + (date.month + 1).toString() else date.month + 1}${if(date.day + 5 < 10) "0" + (date.day + 5).toString() else date.day + 5}"
         val btn: Button = findViewById(R.id.btn)
-
         val intent = Intent(this, FormActivity::class.java)
+
+        intent.putExtra("name", name)
         btn.setOnClickListener{
             startActivity(intent)
         }
-        calendarView.setOnDateChangeListener { calendarView, year, month, dayOfMonth ->
+
+        calendarView.maxDate = date.time
+
+        fun viewDiary(calendarView: CalendarView, year: Int, month: Int, dayOfMonth: Int) {
             var day = "${year}년 ${if(month < 9) "0" + (month + 1).toString() else month + 1}월 ${if(dayOfMonth < 10) "0" + dayOfMonth.toString() else dayOfMonth}일"
             dayText.text = day
 
+            try {
+                name = "${year}${if(month < 9) "0" + (month + 1).toString() else month + 1}${if(dayOfMonth < 10) "0" + dayOfMonth.toString() else dayOfMonth}"
+                intent.putExtra("name", name)
+                var input = openFileInput("${name}.dat")
+                var dis = DataInputStream(input)
+                var valueUTF = dis.readUTF()
+                dis.close() //종료
+                diaryContent.visibility = View.VISIBLE
+                diaryContent.text = valueUTF
+                btn.visibility = View.INVISIBLE
+            }catch(e: IOException){
+                diaryContent.visibility = View.INVISIBLE
+                diaryContent.text = ""
+                btn.visibility = View.VISIBLE
+            }
+
+        }
+
+        viewDiary(calendarView, date.year + 1900, date.month, date.day + 5)
+        calendarView.setOnDateChangeListener { calendarView, year, month, dayOfMonth ->
 //            var output = openFileOutput("${name}.dat", Context.MODE_PRIVATE) //MODE_APPEND : 뒤에 추가, MODE_PRIVATE : 덮어쓰기
 //            var dos = DataOutputStream(output)
 //
@@ -55,22 +84,10 @@ class MainActivity : AppCompatActivity() {
 //            dos.flush()
 //            dos.close()
 
-            try {
-                var name = "${year}${if(month < 9) "0" + (month + 1).toString() else month + 1}${if(dayOfMonth < 10) "0" + dayOfMonth.toString() else dayOfMonth}"
-                var input = openFileInput("${name}.dat")
-                var dis = DataInputStream(input)
-                var valueUTF = dis.readUTF()
-                dis.close() //종료
-                dayText.text = valueUTF
-                btn.visibility = View.INVISIBLE
-            }catch(e: IOException){
-                btn.visibility = View.VISIBLE
-            }
-
+            viewDiary(calendarView, year, month, dayOfMonth)
         }
 
-
-
+        calendarView.date = date.time - 1
 
     }
 }

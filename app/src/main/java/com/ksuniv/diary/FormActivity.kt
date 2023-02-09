@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import java.io.DataOutputStream
 
 class FormActivity : AppCompatActivity() {
@@ -18,6 +19,8 @@ class FormActivity : AppCompatActivity() {
         val saveBtn: Button = findViewById(R.id.saveBtn)
         val diaryText: EditText = findViewById(R.id.diaryText)
 
+        var actionVar = supportActionBar
+        actionVar?.title = "일기 쓰기"
 
         var name = intent.getStringExtra("name")
         homeBtn.setOnClickListener{
@@ -30,6 +33,7 @@ class FormActivity : AppCompatActivity() {
             dos.writeUTF(diaryText.text.toString())
             dos.flush()
             dos.close()
+            Toast.makeText(this, "저장됨", Toast.LENGTH_LONG).show()
             homeBtn.callOnClick()
         }
     }

@@ -5,10 +5,14 @@ import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.CalendarView
 import android.widget.TextView
+import android.widget.Toast
 import com.ksuniv.diary.FormActivity
 import com.ksuniv.diary.R
 import java.io.BufferedReader
@@ -35,7 +39,9 @@ class MainActivity : AppCompatActivity() {
         val dayText : TextView = findViewById(R.id.day_text)
         val diaryContent : TextView = findViewById(R.id.diaryContent)
         val calendarView : CalendarView = findViewById(R.id.calenderView)
+        val actionVar = supportActionBar
 
+        actionVar?.title = "일기장"
         val dateFormat : DateFormat = SimpleDateFormat("yyyy년 MM월 dd일")
 
         val date = Date(calendarView.date)
@@ -88,6 +94,22 @@ class MainActivity : AppCompatActivity() {
         }
 
         calendarView.date = date.time - 1
+    }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater : MenuInflater = menuInflater
+        inflater.inflate(R.menu.menu_list, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.diary_list -> {
+                val intent = Intent(this, ListActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 }

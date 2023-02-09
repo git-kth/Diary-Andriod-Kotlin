@@ -52,7 +52,9 @@ class ListActivity : AppCompatActivity() {
                 text.subSequence(6, 8) + "일"
         itemBtn.textSize = 30f
         itemBtn.setOnClickListener{
-
+            val intent = Intent(this, ItemActivity::class.java)
+            intent.putExtra("name", text)
+            startActivity(intent)
         }
         listView.addView(itemBtn)
     }
